@@ -6,10 +6,10 @@
 
   <?include caSuffix.wxi ?>
   <Fragment>
-    <CustomAction Id="WixSchedGameExplorer$(var.Suffix)" BinaryKey="WixGamingCA$(var.Suffix)" DllEntry="SchedGameExplorerInstall" Execute="immediate" Return="check" SuppressModularization="yes" />
-    <CustomAction Id="WixSchedGameExplorerUninstall$(var.Suffix)" BinaryKey="WixGamingCA$(var.Suffix)" DllEntry="SchedGameExplorerUninstall" Execute="immediate" Return="check" SuppressModularization="yes" />
-    <CustomAction Id="WixExecGameExplorer$(var.DeferredSuffix)" BinaryKey="WixGamingCA$(var.Suffix)" DllEntry="ExecGameExplorer" Execute="deferred" Impersonate="no" Return="ignore" SuppressModularization="yes" />
-    <CustomAction Id="WixRollbackGameExplorer$(var.DeferredSuffix)" BinaryKey="WixGamingCA$(var.Suffix)" DllEntry="ExecGameExplorer" Execute="rollback" Impersonate="no" Return="ignore" SuppressModularization="yes" />
+    <CustomAction Id="WixSchedGameExplorer$(var.Suffix)" BinaryKey="GamingCA$(var.Suffix)" DllEntry="SchedGameExplorerInstall" Execute="immediate" Return="check" SuppressModularization="yes" />
+    <CustomAction Id="WixSchedGameExplorerUninstall$(var.Suffix)" BinaryKey="GamingCA$(var.Suffix)" DllEntry="SchedGameExplorerUninstall" Execute="immediate" Return="check" SuppressModularization="yes" />
+    <CustomAction Id="WixExecGameExplorer$(var.DeferredSuffix)" BinaryKey="GamingCA$(var.Suffix)" DllEntry="ExecGameExplorer" Execute="deferred" Impersonate="no" Return="ignore" SuppressModularization="yes" />
+    <CustomAction Id="WixRollbackGameExplorer$(var.DeferredSuffix)" BinaryKey="GamingCA$(var.Suffix)" DllEntry="ExecGameExplorer" Execute="rollback" Impersonate="no" Return="ignore" SuppressModularization="yes" />
 
     <InstallExecuteSequence>
       <!-- Uninstall requires the game GDF resource file, make sure it happens before remove files -->
@@ -22,6 +22,6 @@
 
   <!-- Gaming Custom Action DLL Definitions -->
     <Fragment>
-        <Binary Id="WixGamingCA$(var.Suffix)" SourceFile="!(bindpath.$(var.platform))gaming.dll" />
+        <Binary Id="GamingCA$(var.Suffix)" SourceFile="!(bindpath.$(var.platform))gamingca.dll" />
     </Fragment>
 </Include>

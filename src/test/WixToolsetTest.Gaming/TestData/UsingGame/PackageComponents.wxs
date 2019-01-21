@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs"
+     xmlns:gaming="http://wixtoolset.org/schemas/v4/wxs/gaming">
+  <Fragment>
+    <ComponentGroup Id="ProductComponents" Directory="INSTALLFOLDER">
+        <Component>
+            <File Source="example.txt">
+                <gaming:Game Id="12345678-1234-5678-90AB-1234567890AB" />
+            </File>
+        </Component>
+    </ComponentGroup>
+  </Fragment>
+</Wix>
