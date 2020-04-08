@@ -7,6 +7,7 @@ namespace WixToolset.Gaming
     using System.Globalization;
     using System.Xml.Linq;
     using WixToolset.Data;
+    using WixToolset.Data.Tuples;
     using WixToolset.Extensibility;
 
     /// <summary>
@@ -115,8 +116,8 @@ namespace WixToolset.Gaming
         /// <param name="contextValues">Extra information about the context in which this element is being parsed.</param>
         private void ProcessIsRichSavedGameAttribute(IntermediateSection section, SourceLineNumber sourceLineNumbers, IDictionary<string, string> context)
         {
-            const int MsidbRegistryRootClassesRoot = 0;
-            const int MsidbRegistryRootLocalMachine = 2;
+            const RegistryRootType MsidbRegistryRootClassesRoot = RegistryRootType.ClassesRoot;
+            const RegistryRootType MsidbRegistryRootLocalMachine = RegistryRootType.LocalMachine;
 
             string progId = context["ProgId"];
             string componentId = context["ComponentId"];
