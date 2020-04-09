@@ -9,6 +9,7 @@ namespace WixToolset.Gaming
     using WixToolset.Data;
     using WixToolset.Data.Tuples;
     using WixToolset.Extensibility;
+    using WixToolset.Gaming.Tuples;
 
     /// <summary>
     /// The compiler for the WiX Toolset Gaming Extension.
@@ -42,14 +43,14 @@ namespace WixToolset.Gaming
         /// <param name="context">Extra information about the context in which this element is being parsed.</param>
         public override void ParseAttribute(Intermediate intermediate, IntermediateSection section, XElement parentElement, XAttribute attribute, IDictionary<string, string> context)
         {
-            SourceLineNumber sourceLineNumbers = this.ParseHelper.GetSourceLineNumbers(parentElement);
+            var sourceLineNumbers = this.ParseHelper.GetSourceLineNumbers(parentElement);
             switch (parentElement.Name.LocalName)
             {
                 case "Extension":
                     // at the time the IsRichSavedGame extension attribute is parsed, the compiler
                     // might not yet have parsed the Id attribute, so we need to get it directly
                     // from the parent element and put it into the contextValues dictionary.
-                    XAttribute idAttribute = parentElement.Attribute("Id");
+                    var idAttribute = parentElement.Attribute("Id");
                     if (null == idAttribute)
                     {
                         this.Messaging.Write(ErrorMessages.ExpectedParentWithAttribute(sourceLineNumbers, "Extension", "IsRichSavedGame", "Id"));
@@ -89,9 +90,9 @@ namespace WixToolset.Gaming
             switch (parentElement.Name.LocalName)
             {
                 case "File":
-                    string fileId = context["FileId"];
-                    string componentId = context["ComponentId"];
-                    string componentDirectoryId = context["DirectoryId"];
+                    var fileId = context["FileId"];
+                    var componentId = context["ComponentId"];
+                    var componentDirectoryId = context["DirectoryId"];
 
                     switch (element.Name.LocalName)
                     {
@@ -116,12 +117,9 @@ namespace WixToolset.Gaming
         /// <param name="contextValues">Extra information about the context in which this element is being parsed.</param>
         private void ProcessIsRichSavedGameAttribute(IntermediateSection section, SourceLineNumber sourceLineNumbers, IDictionary<string, string> context)
         {
-            const RegistryRootType MsidbRegistryRootClassesRoot = RegistryRootType.ClassesRoot;
-            const RegistryRootType MsidbRegistryRootLocalMachine = RegistryRootType.LocalMachine;
-
-            string progId = context["ProgId"];
-            string componentId = context["ComponentId"];
-            string extensionId = context["ExtensionId"];
+            var progId = context["ProgId"];
+            var componentId = context["ComponentId"];
+            var extensionId = context["ExtensionId"];
             
             if (null == extensionId || null == progId || null == componentId)
             {
@@ -131,10 +129,10 @@ namespace WixToolset.Gaming
             if (!this.Messaging.EncounteredError)
             {
                 // write Registry rows according to http://msdn2.microsoft.com/en-us/library/bb173448.aspx
-                this.ParseHelper.CreateRegistryRow(section, sourceLineNumbers, MsidbRegistryRootClassesRoot, progId, "PreviewTitle", "prop:System.Game.RichSaveName;System.Game.RichApplicationName", componentId, false);
-                this.ParseHelper.CreateRegistryRow(section, sourceLineNumbers, MsidbRegistryRootClassesRoot, progId, "PreviewDetails", "prop:System.Game.RichLevel;System.DateChanged;System.Game.RichComment;System.DisplayName;System.DisplayType", componentId, false);
-                this.ParseHelper.CreateRegistryRow(section, sourceLineNumbers, MsidbRegistryRootClassesRoot, String.Concat(".", extensionId, "\\{BB2E617C-0920-11D1-9A0B-00C04FC2D6C1}"), null, "{4E5BFBF8-F59A-4E87-9805-1F9B42CC254A}", componentId, false);
-                this.ParseHelper.CreateRegistryRow(section, sourceLineNumbers, MsidbRegistryRootLocalMachine, String.Concat("Software\\Microsoft\\Windows\\CurrentVersion\\PropertySystem\\PropertyHandlers\\.", extensionId), null, "{ECDD6472-2B9B-4B4B-AE36-F316DF3C8D60}", componentId, false);
+                this.ParseHelper.CreateRegistryTuple(section, sourceLineNumbers, RegistryRootType.ClassesRoot, progId, "PreviewTitle", "prop:System.Game.RichSaveName;System.Game.RichApplicationName", componentId, false);
+                this.ParseHelper.CreateRegistryTuple(section, sourceLineNumbers, RegistryRootType.ClassesRoot, progId, "PreviewDetails", "prop:System.Game.RichLevel;System.DateChanged;System.Game.RichComment;System.DisplayName;System.DisplayType", componentId, false);
+                this.ParseHelper.CreateRegistryTuple(section, sourceLineNumbers, RegistryRootType.ClassesRoot, String.Concat(".", extensionId, "\\{BB2E617C-0920-11D1-9A0B-00C04FC2D6C1}"), null, "{4E5BFBF8-F59A-4E87-9805-1F9B42CC254A}", componentId, false);
+                this.ParseHelper.CreateRegistryTuple(section, sourceLineNumbers, RegistryRootType.LocalMachine, String.Concat("Software\\Microsoft\\Windows\\CurrentVersion\\PropertySystem\\PropertyHandlers\\.", extensionId), null, "{ECDD6472-2B9B-4B4B-AE36-F316DF3C8D60}", componentId, false);
             }
         }
 
@@ -146,14 +144,14 @@ namespace WixToolset.Gaming
         /// <param name="componentId">The component identifier of the game executable.</param>
         private void ParseGameElement(Intermediate intermediate, IntermediateSection section, XElement node, string fileId, string componentId, string componentDirectoryId)
         {
-            SourceLineNumber sourceLineNumbers = this.ParseHelper.GetSourceLineNumbers(node);
+            var sourceLineNumbers = this.ParseHelper.GetSourceLineNumbers(node);
             string id = null;
-            string gdfResourceFileId = fileId;
-            string executableFileId = fileId;
+            var gdfResourceFileId = fileId;
+            var executableFileId = fileId;
             int playTaskOrder = 0;
             int supportTaskOrder = 0;
 
-            foreach (XAttribute attrib in node.Attributes())
+            foreach (var attrib in node.Attributes())
             {
                 if (String.IsNullOrEmpty(attrib.Name.NamespaceName) || this.Namespace == attrib.Name.Namespace)
                 {
@@ -179,7 +177,7 @@ namespace WixToolset.Gaming
                 }
             }
 
-            foreach (XElement child in node.Elements())
+            foreach (var child in node.Elements())
             {
                 if (this.Namespace == child.Name.Namespace)
                 {
@@ -217,22 +215,24 @@ namespace WixToolset.Gaming
                 this.Messaging.Write(ErrorMessages.ExpectedAttribute(sourceLineNumbers, node.Name.LocalName, "Id"));
             }
 
-            if (0 != String.Compare(fileId, gdfResourceFileId, StringComparison.Ordinal))
+            if (!String.Equals(fileId, gdfResourceFileId, StringComparison.Ordinal))
             {
-                this.ParseHelper.CreateSimpleReference(section, sourceLineNumbers, "File", gdfResourceFileId);
+                this.ParseHelper.CreateSimpleReference(section, sourceLineNumbers, TupleDefinitions.File, gdfResourceFileId);
             }
 
-            if (0 != String.Compare(fileId, executableFileId, StringComparison.Ordinal))
+            if (!String.Equals(fileId, executableFileId, StringComparison.Ordinal))
             {
-                this.ParseHelper.CreateSimpleReference(section, sourceLineNumbers, "File", executableFileId);
+                this.ParseHelper.CreateSimpleReference(section, sourceLineNumbers, TupleDefinitions.File, executableFileId);
             }
 
             if (!this.Messaging.EncounteredError)
             {
-                var row = this.ParseHelper.CreateRow(section, sourceLineNumbers, "WixGameExplorer");
-                row.Set(0, id);
-                row.Set(1, gdfResourceFileId);
-                this.ParseHelper.CreateSimpleReference(section, sourceLineNumbers, "CustomAction", "WixSchedGameExplorer");
+                section.AddTuple(new WixGameExplorerTuple(sourceLineNumbers)
+                {
+                    InstanceId = id,
+                    FileRef = gdfResourceFileId,
+                });
+                this.ParseHelper.CreateSimpleReference(section, sourceLineNumbers, TupleDefinitions.CustomAction, "WixSchedGameExplorer");
             }
         }
 
@@ -246,11 +246,11 @@ namespace WixToolset.Gaming
         /// <param name="taskOrder">The order this play task should appear in Game Explorer.</param>
         private void ParsePlayTaskElement(Intermediate intermediate, IntermediateSection section, XElement node, string gameId, string fileId, string componentId, int taskOrder, string componentDirectoryId)
         {
-            SourceLineNumber sourceLineNumbers = this.ParseHelper.GetSourceLineNumbers(node);
+            var sourceLineNumbers = this.ParseHelper.GetSourceLineNumbers(node);
             string name = null;
             string arguments = null;
 
-            foreach (XAttribute attrib in node.Attributes())
+            foreach (var attrib in node.Attributes())
             {
                 if (String.IsNullOrEmpty(attrib.Name.NamespaceName) || this.Namespace == attrib.Name.Namespace)
                 {
@@ -283,16 +283,18 @@ namespace WixToolset.Gaming
             if (!this.Messaging.EncounteredError)
             {
                 // create Shortcut rows pointing to the parent File
-                string directoryId = this.CreateTaskDirectoryRow(section, sourceLineNumbers, componentId, TaskType.Play, taskOrder);
-                var row = this.ParseHelper.CreateRow(section, sourceLineNumbers, "Shortcut");
-                row.Set(0, directoryId); // just need something unique-and-stable
-                row.Set(1, directoryId);
-                row.Set(2, this.ParseHelper.IsValidShortFilename(name, false) ? name : String.Concat(this.ParseHelper.CreateShortName(name, true, false, directoryId, name), "|", name));
-                row.Set(3, componentId);
-                row.Set(4, String.Format(CultureInfo.InvariantCulture, "[#{0}]", fileId));
-                row.Set(5, arguments);
-                // skipping Description, Hotkey, Icon_, IconIndex, ShowCmd
-                row.Set(11, componentDirectoryId);
+                var directoryId = this.CreateTaskDirectoryRow(section, sourceLineNumbers, componentId, TaskType.Play, taskOrder);
+                var shortName = this.ParseHelper.IsValidShortFilename(name, false) ? name : this.ParseHelper.CreateShortName(name, true, false, directoryId, name);
+                section.AddTuple(new ShortcutTuple(sourceLineNumbers, new Identifier(AccessModifier.Private, directoryId))
+                {
+                    DirectoryRef = directoryId,
+                    Name = name,
+                    ShortName = shortName,
+                    ComponentRef = componentId,
+                    Target = String.Format(CultureInfo.InvariantCulture, "[#{0}]", fileId),
+                    Arguments = arguments,
+                    WorkingDirectory = componentDirectoryId,
+                });
             }
         }
 
@@ -305,11 +307,11 @@ namespace WixToolset.Gaming
         /// <param name="taskOrder">The order this support task should appear in Game Explorer.</param>
         private void ParseSupportTaskElement(Intermediate intermediate, IntermediateSection section, XElement node, string gameId, string componentId, int taskOrder)
         {
-            SourceLineNumber sourceLineNumbers = this.ParseHelper.GetSourceLineNumbers(node);
+            var sourceLineNumbers = this.ParseHelper.GetSourceLineNumbers(node);
             string name = null;
             string address = null;
 
-            foreach (XAttribute attrib in node.Attributes())
+            foreach (var attrib in node.Attributes())
             {
                 if (String.IsNullOrEmpty(attrib.Name.NamespaceName) || this.Namespace == attrib.Name.Namespace)
                 {
@@ -349,10 +351,11 @@ namespace WixToolset.Gaming
                 // create support shortcuts as WixUtilExtension's WixInternetShortcut rows;
                 // use the directory ID as the shortcut ID because Game Explorer wants one
                 // shortcut per directory, so that makes the directory ID unique
-                string directoryId = this.CreateTaskDirectoryRow(section, sourceLineNumbers, componentId, TaskType.Support, taskOrder);
+                var directoryId = this.CreateTaskDirectoryRow(section, sourceLineNumbers, componentId, TaskType.Support, taskOrder);
 #if TODO_CREATE_SHORTCUT
                 UtilCompiler.CreateWixInternetShortcut(this.Core, sourceLineNumbers, componentId, directoryId, directoryId, name, address, UtilCompiler.InternetShortcutType.Link, null, 0);
 #endif
+                throw new NotImplementedException();
             }
         }
 
@@ -364,44 +367,39 @@ namespace WixToolset.Gaming
         /// <param name="componentId">The component identifier of the game executable.</param>
         private void CreateTaskRootDirectoryCustomActions(IntermediateSection section, SourceLineNumber sourceLineNumbers, string gameId, string componentId)
         {
-            string playTasksDirectoryId = this.GetTaskDirectoryId(sourceLineNumbers, "WixPlayTasksRoot", componentId);
-            string supportTasksDirectoryId = this.GetTaskDirectoryId(sourceLineNumbers, "WixSupportTasksRoot", componentId);
-            string rootDirectoryPath = String.Format(CultureInfo.InvariantCulture, @"[CommonAppDataFolder]Microsoft\Windows\GameExplorer\{0}\", gameId);
+            var access = AccessModifier.Private;
+            var sequence = SequenceTable.InstallExecuteSequence;
+            var playTasksDirectoryId = this.GetTaskDirectoryId(sourceLineNumbers, "WixPlayTasksRoot", componentId);
+            var playTasksDirectoryIdentifier = new Identifier(access, playTasksDirectoryId);
+            var supportTasksDirectoryId = this.GetTaskDirectoryId(sourceLineNumbers, "WixSupportTasksRoot", componentId);
+            var supportTasksDirectoryIdentifier = new Identifier(access, supportTasksDirectoryId);
+            var rootDirectoryPath = String.Format(CultureInfo.InvariantCulture, @"[CommonAppDataFolder]Microsoft\Windows\GameExplorer\{0}\", gameId);
 
             // create placeholder directories for this game's tasks
-            var row = this.ParseHelper.CreateRow(section, sourceLineNumbers, "Directory");
-            row.Set(0, playTasksDirectoryId);
-            row.Set(1, "TARGETDIR");
-            row.Set(2, ".");
-
-            row = this.ParseHelper.CreateRow(section, sourceLineNumbers, "Directory");
-            row.Set(0, supportTasksDirectoryId);
-            row.Set(1, "TARGETDIR");
-            row.Set(2, ".");
+            this.ParseHelper.CreateDirectoryTuple(section, sourceLineNumbers, playTasksDirectoryIdentifier, "TARGETDIR", ".", null);
+            this.ParseHelper.CreateDirectoryTuple(section, sourceLineNumbers, supportTasksDirectoryIdentifier, "TARGETDIR", ".", null);
 
             // set the PlayTasks path and schedule it
-            row = this.ParseHelper.CreateRow(section, sourceLineNumbers, "CustomAction");
-            row.Set(0, playTasksDirectoryId);
-            row.Set(1, 51);
-            row.Set(2, playTasksDirectoryId);
-            row.Set(3, String.Concat(rootDirectoryPath, "PlayTasks\\"));
-
-            row = this.ParseHelper.CreateRow(section, sourceLineNumbers, "WixAction");
-            row.Set(0, "InstallExecuteSequence");
-            row.Set(1, playTasksDirectoryId);
-            row.Set(4, "CostFinalize");
+            section.AddTuple(new CustomActionTuple(sourceLineNumbers, playTasksDirectoryIdentifier)
+            {
+                ExecutionType = CustomActionExecutionType.Immediate,
+                SourceType = CustomActionSourceType.Property,
+                TargetType = CustomActionTargetType.TextData,
+                Source = playTasksDirectoryId,
+                Target = String.Concat(rootDirectoryPath, "PlayTasks\\"),
+            });
+            this.ParseHelper.ScheduleActionTuple(section, sourceLineNumbers, access, sequence, playTasksDirectoryId, null, null, "CostFinalize");
 
             // set the SupportTasks path and schedule it
-            row = this.ParseHelper.CreateRow(section, sourceLineNumbers, "CustomAction");
-            row.Set(0, supportTasksDirectoryId);
-            row.Set(1, 51);
-            row.Set(2, supportTasksDirectoryId);
-            row.Set(3, String.Concat(rootDirectoryPath, "SupportTasks\\"));
-
-            row = this.ParseHelper.CreateRow(section, sourceLineNumbers, "WixAction");
-            row.Set(0, "InstallExecuteSequence");
-            row.Set(1, supportTasksDirectoryId);
-            row.Set(4, "CostFinalize");
+            section.AddTuple(new CustomActionTuple(sourceLineNumbers, supportTasksDirectoryIdentifier)
+            {
+                ExecutionType = CustomActionExecutionType.Immediate,
+                SourceType = CustomActionSourceType.Property,
+                TargetType = CustomActionTargetType.TextData,
+                Source = supportTasksDirectoryId,
+                Target = String.Concat(rootDirectoryPath, "SupportTasks\\"),
+            });
+            this.ParseHelper.ScheduleActionTuple(section, sourceLineNumbers, access, sequence, supportTasksDirectoryId, null, null, "CostFinalize");
         }
 
         /// <summary>
@@ -426,18 +424,15 @@ namespace WixToolset.Gaming
         /// <returns>The generated Directory table identifier.</returns>
         private string CreateTaskDirectoryRow(IntermediateSection section, SourceLineNumber sourceLineNumbers, string componentId, TaskType taskType, int taskOrder)
         {
-            string parentDirectoryId = this.GetTaskDirectoryId(sourceLineNumbers, TaskType.Play == taskType ? "WixPlayTasksRoot" : "WixSupportTasksRoot", componentId);
-            string taskOrderString = taskOrder.ToString(CultureInfo.InvariantCulture.NumberFormat);
-            string thisDirectoryName = String.Concat(TaskType.Play == taskType ? "WixPlayTask" : "WixSupportTask", taskOrderString);
-            string thisDirectoryId = this.GetTaskDirectoryId(sourceLineNumbers, thisDirectoryName, componentId);
-            
-            // create the numbered directory where the task shortcut itself will live
-            var row = this.ParseHelper.CreateRow(section, sourceLineNumbers, "Directory");
-            row.Set(0, thisDirectoryId);
-            row.Set(1, parentDirectoryId);
-            row.Set(2, taskOrder.ToString(CultureInfo.InvariantCulture.NumberFormat));
+            var parentDirectoryId = this.GetTaskDirectoryId(sourceLineNumbers, TaskType.Play == taskType ? "WixPlayTasksRoot" : "WixSupportTasksRoot", componentId);
+            var taskOrderString = taskOrder.ToString(CultureInfo.InvariantCulture.NumberFormat);
+            var thisDirectoryName = String.Concat(TaskType.Play == taskType ? "WixPlayTask" : "WixSupportTask", taskOrderString);
+            var thisDirectoryId = new Identifier(AccessModifier.Private, this.GetTaskDirectoryId(sourceLineNumbers, thisDirectoryName, componentId));
 
-            return thisDirectoryId;
+            // create the numbered directory where the task shortcut itself will live
+            this.ParseHelper.CreateDirectoryTuple(section, sourceLineNumbers, thisDirectoryId, parentDirectoryId, taskOrderString, null);
+
+            return thisDirectoryId.Id;
         }
 
         /// <summary>
@@ -449,7 +444,7 @@ namespace WixToolset.Gaming
         /// <returns>The generated Directory table identifier.</returns>
         private string GetTaskDirectoryId(SourceLineNumber sourceLineNumbers, string prefix, string componentId)
         {
-            string id = String.Concat(prefix, "_", componentId);
+            var id = String.Concat(prefix, "_", componentId);
             
             if (72 < id.Length || !this.ParseHelper.IsValidIdentifier(id))
             {

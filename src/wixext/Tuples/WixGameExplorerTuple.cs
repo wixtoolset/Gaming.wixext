@@ -12,7 +12,7 @@ namespace WixToolset.Gaming
             new[]
             {
                 new IntermediateFieldDefinition(nameof(WixGameExplorerTupleFields.InstanceId), IntermediateFieldType.String),
-                new IntermediateFieldDefinition(nameof(WixGameExplorerTupleFields.File_), IntermediateFieldType.String),
+                new IntermediateFieldDefinition(nameof(WixGameExplorerTupleFields.FileRef), IntermediateFieldType.String),
             },
             typeof(WixGameExplorerTuple));
     }
@@ -25,7 +25,7 @@ namespace WixToolset.Gaming.Tuples
     public enum WixGameExplorerTupleFields
     {
         InstanceId,
-        File_,
+        FileRef,
     }
 
     public class WixGameExplorerTuple : IntermediateTuple
@@ -46,10 +46,10 @@ namespace WixToolset.Gaming.Tuples
             set => this.Set((int)WixGameExplorerTupleFields.InstanceId, value);
         }
 
-        public string File_
+        public string FileRef
         {
-            get => this.Fields[(int)WixGameExplorerTupleFields.File_].AsString();
-            set => this.Set((int)WixGameExplorerTupleFields.File_, value);
+            get => this.Fields[(int)WixGameExplorerTupleFields.FileRef].AsString();
+            set => this.Set((int)WixGameExplorerTupleFields.FileRef, value);
         }
     }
 }
