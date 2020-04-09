@@ -3,25 +3,11 @@
 namespace WixToolset.Gaming
 {
     using System.Collections.Generic;
-    using System.Linq;
-    using System.Xml;
     using WixToolset.Data.WindowsInstaller;
     using WixToolset.Extensibility;
 
     public class GamingWindowsInstallerBackendBinderExtension : BaseWindowsInstallerBackendBinderExtension
     {
-        private static readonly TableDefinition[] Tables = LoadTables();
-
-        public override IEnumerable<TableDefinition> TableDefinitions => Tables;
-
-        private static TableDefinition[] LoadTables()
-        {
-            using (var resourceStream = typeof(GamingWindowsInstallerBackendBinderExtension).Assembly.GetManifestResourceStream("WixToolset.Gaming.tables.xml"))
-            using (var reader = XmlReader.Create(resourceStream))
-            {
-                var tables = TableDefinitionCollection.Load(reader);
-                return tables.ToArray();
-            }
-        }
+        public override IEnumerable<TableDefinition> TableDefinitions => GamingTableDefinitions.All;
     }
 }
