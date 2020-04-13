@@ -8,12 +8,12 @@ namespace WixToolset.Gaming
     {
         public static readonly TableDefinition WixGameExplorer = new TableDefinition(
             "WixGameExplorer",
+            GamingTupleDefinitions.WixGameExplorer,
             new[]
             {
                 new ColumnDefinition("InstanceId", ColumnType.String, 38, primaryKey: true, nullable: false, ColumnCategory.Guid, description: "The instance ID of the game executable to be registered in Game Explorer."),
                 new ColumnDefinition("File_", ColumnType.String, 72, primaryKey: false, nullable: false, ColumnCategory.Identifier, keyTable: "File", keyColumn: 1, description: "The file representing the game executable.", modularizeType: ColumnModularizeType.Column),
             },
-            tupleDefinitionName: GamingTupleDefinitions.WixGameExplorer.Name,
             tupleIdIsPrimaryKey: false
         );
 

@@ -20,7 +20,7 @@ namespace WixToolsetTest.Gaming
             Assert.Equal(new[]
             {
                 "WixGameExplorer:{12345678-1234-5678-90AB-1234567890AB}\tfilF5_pLhBuF5b4N9XEo52g_hUM5Lo",
-            }, results.OrderBy(s => s).ToArray());
+            }, results);
         }
 
         private static void Build(string[] args)
